@@ -18,11 +18,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.0
 
       # ===== 构建前端 =====
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: 20
 
@@ -34,7 +34,7 @@ jobs:
 
       # ===== 部署前端静态文件 =====
       - name: Deploy Frontend
-        uses: burnett01/rsync-deployments@v8
+        uses: burnett01/rsync-deployments@v9
         with:
           switches: -avz --no-t --no-perms --no-owner --no-group --delete
           path: web/dist/
@@ -45,7 +45,7 @@ jobs:
 
       # ===== 部署后端代码 =====
       - name: Deploy Backend
-        uses: burnett01/rsync-deployments@v8
+        uses: burnett01/rsync-deployments@v9
         with:
           switches: -avz --no-t --no-perms --no-owner --no-group --exclude='.venv/' --exclude='__pycache__/' --exclude='*.db' --exclude='sync_folder/audio/*' --exclude='sync_folder/results/*' --exclude='.env'
           path: server/
@@ -53,3 +53,7 @@ jobs:
           remote_host: fantastair.cn
           remote_user: deployer
           remote_key: ${{ secrets.DEPLOY_KEY }}
+      
+      - name: Restart Backend Service
+        run: |
+          ssh -i ${{ secrets.DEPLOY_KEY }} deployer@fantastair.cn "sudo systemctl restart whisper"
