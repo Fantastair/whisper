@@ -58,7 +58,13 @@ jobs:
           username: deployer
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
+            set -euxo pipefail
             cd /opt/whisper
+
             python3 -m venv .venv
-            .venv/bin/pip install -r requirements.txt --quiet
-            sudo systemctl restart whisper
+            . .venv/bin/activate
+            python -m ensurepip --upgrade || true
+            python -m pip install --upgrade pip
+            python -m pip install -r requirements.txt --quiet
+
+            sudo -n systemctl restart whisper
