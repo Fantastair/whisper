@@ -8,6 +8,10 @@ name: Deploy Whisper
 on:
   push:
     branches: [main]
+    paths:
+      - 'web/**'
+      - 'server/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 jobs:
@@ -49,22 +53,3 @@ jobs:
           remote_host: fantastair.cn
           remote_user: deployer
           remote_key: ${{ secrets.DEPLOY_KEY }}
-
-      # ===== 安装后端依赖 & 重启服务 =====
-      - name: Restart Backend Service
-        uses: appleboy/ssh-action@v1
-        with:
-          host: fantastair.cn
-          username: deployer
-          key: ${{ secrets.DEPLOY_KEY }}
-          script: |
-            set -euxo pipefail
-            cd /opt/whisper
-
-            python3 -m venv .venv
-            . .venv/bin/activate
-            python -m ensurepip --upgrade || true
-            python -m pip install --upgrade pip
-            python -m pip install -r requirements.txt --quiet
-
-            sudo -n systemctl restart whisper

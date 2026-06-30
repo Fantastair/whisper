@@ -1,4 +1,4 @@
-# Whisper Tools 🎙️
+# 轻语
 
 个人语音转文本工具站 —— 通过 Web 上传音频，利用远端 GPU 机器运行 Whisper 转写，再经 LLM 矫正总结后邮件发送报告。
 
@@ -85,6 +85,7 @@ sudo systemctl start whisper
 ### 自动部署
 
 push 到 `main` 分支后 GitHub Actions 自动：
+
 1. 构建前端 → 部署到 `/var/www/whisper.fantastair.cn/public/`
 2. 同步后端代码 → `/opt/whisper/`
 3. 安装 Python 依赖 → 重启 systemd 服务
