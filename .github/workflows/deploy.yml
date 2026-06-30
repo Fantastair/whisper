@@ -1,0 +1,64 @@
+# 轻语 - 自动部署
+# push 到 main 分支时自动构建并部署到服务器
+# 前端: /var/www/whisper.fantastair.cn/public/
+# 后端: /opt/whisper/
+
+name: Deploy Whisper
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ===== 构建前端 =====
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Frontend
+        run: |
+          cd web
+          npm ci
+          npm run build
+
+      # ===== 部署前端静态文件 =====
+      - name: Deploy Frontend
+        uses: burnett01/rsync-deployments@v8
+        with:
+          switches: -avz --no-t --no-perms --no-owner --no-group --delete
+          path: web/dist/
+          remote_path: /var/www/whisper.fantastair.cn/public/
+          remote_host: fantastair.cn
+          remote_user: deployer
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+
+      # ===== 部署后端代码 =====
+      - name: Deploy Backend
+        uses: burnett01/rsync-deployments@v8
+        with:
+          switches: -avz --no-t --no-perms --no-owner --no-group --exclude='.venv/' --exclude='__pycache__/' --exclude='*.db' --exclude='sync_folder/audio/*' --exclude='sync_folder/results/*' --exclude='.env'
+          path: server/
+          remote_path: /opt/whisper/
+          remote_host: fantastair.cn
+          remote_user: deployer
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+
+      # ===== 安装后端依赖 & 重启服务 =====
+      - name: Restart Backend Service
+        uses: appleboy/ssh-action@v1
+        with:
+          host: fantastair.cn
+          username: deployer
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /opt/whisper
+            python3 -m venv .venv
+            .venv/bin/pip install -r requirements.txt --quiet
+            sudo systemctl restart whisper

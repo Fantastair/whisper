@@ -35,8 +35,9 @@ whisper-tools/
 ```bash
 cd server
 cp .env.example .env   # 编辑 .env 填入你的配置
-pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000
+uv venv --python 3.12
+uv pip install -r requirements.txt
+.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 ### 2. 前端
@@ -44,7 +45,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ```bash
 cd web
 npm install
-npm run dev           # 开发模式
+npm run dev           # 开发模式 (localhost:5173)
 npm run build         # 构建生产版本
 ```
 
@@ -55,6 +56,38 @@ cd windows-agent
 pip install -r requirements.txt
 python whisper_watcher.py
 ```
+
+## 部署到服务器
+
+### 首次服务器配置
+
+```bash
+# 1. 将 Nginx 配置链接到站点
+sudo ln -s /opt/whisper/deploy/nginx.conf /etc/nginx/sites-available/whisper.fantastair.cn
+sudo ln -s /etc/nginx/sites-available/whisper.fantastair.cn /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+
+# 2. 安装 systemd 服务
+sudo cp /opt/whisper/deploy/whisper.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable whisper
+
+# 3. 创建 .env 配置（不会通过 git 部署，需手动创建）
+cp /opt/whisper/.env.example /opt/whisper/.env
+nano /opt/whisper/.env   # 填入真实密码和 API Key
+
+# 4. 配置 Syncthing 同步文件夹（将 sync_folder 设为共享目录）
+
+# 5. 启动服务
+sudo systemctl start whisper
+```
+
+### 自动部署
+
+push 到 `main` 分支后 GitHub Actions 自动：
+1. 构建前端 → 部署到 `/var/www/whisper.fantastair.cn/public/`
+2. 同步后端代码 → `/opt/whisper/`
+3. 安装 Python 依赖 → 重启 systemd 服务
 
 ## 配置说明
 
