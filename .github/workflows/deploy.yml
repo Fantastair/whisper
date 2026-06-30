@@ -54,6 +54,11 @@ jobs:
           remote_user: deployer
           remote_key: ${{ secrets.DEPLOY_KEY }}
       
+      # ==== 重启后端服务 =====
       - name: Restart Backend Service
         run: |
-          ssh -i ${{ secrets.DEPLOY_KEY }} deployer@fantastair.cn "sudo systemctl restart whisper"
+          install -m 700 -d ~/.ssh
+          install -m 600 /dev/null ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          ssh-keyscan -H fantastair.cn >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key deployer@fantastair.cn "sudo systemctl restart whisper"
