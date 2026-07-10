@@ -10,7 +10,6 @@ on:
     branches: [main]
     paths:
       - 'web/**'
-      - 'server/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -42,23 +41,3 @@ jobs:
           remote_host: fantastair.cn
           remote_user: deployer
           remote_key: ${{ secrets.DEPLOY_KEY }}
-
-      # ===== 部署后端代码 =====
-      - name: Deploy Backend
-        uses: burnett01/rsync-deployments@v9
-        with:
-          switches: -avz --no-t --no-perms --no-owner --no-group --exclude='.venv/' --exclude='__pycache__/' --exclude='*.db' --exclude='sync_folder/audio/*' --exclude='sync_folder/results/*' --exclude='.env'
-          path: server/
-          remote_path: /opt/whisper/
-          remote_host: fantastair.cn
-          remote_user: deployer
-          remote_key: ${{ secrets.DEPLOY_KEY }}
-      
-      # ==== 重启后端服务 =====
-      - name: Restart Backend Service
-        run: |
-          install -m 700 -d ~/.ssh
-          install -m 600 /dev/null ~/.ssh/deploy_key
-          printf '%s\n' "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
-          ssh-keyscan -H fantastair.cn >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/deploy_key deployer@fantastair.cn "sudo systemctl restart whisper"
