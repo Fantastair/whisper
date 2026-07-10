@@ -1,0 +1,10 @@
+# Windows 端 frp 客户端配置
+serverAddr = "whisper.fantastair.cn"
+serverPort = 7000
+
+[[proxies]]
+name = "whisper-api"
+type = "http"
+localIP = "127.0.0.1"
+localPort = 8000
+customDomains = ["whisper.fantastair.cn"]

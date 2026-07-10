@@ -15,14 +15,13 @@ venv/
 node_modules/
 web/dist/
 
-# ===== 同步文件夹（含真实音频和转写结果） =====
-server/sync_folder/audio/*
-server/sync_folder/results/*
-!server/sync_folder/audio/.gitkeep
-!server/sync_folder/results/.gitkeep
+# ===== Windows 端上传和归档目录（含真实音频） =====
+windows/uploads/*
+!windows/uploads/.gitkeep
+windows/archive/
 
 # ===== 数据库（含任务记录） =====
-server/*.db
+windows/*.db
 
 # ===== IDE / 系统 =====
 .DS_Store

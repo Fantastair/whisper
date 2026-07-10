@@ -1,0 +1,32 @@
+[project]
+name = "whisper"
+version = "0.1.0"
+description = "说者有意 · 听者无心"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiofiles>=25.1.0",
+    "aiosqlite>=0.22.1",
+    "fastapi>=0.139.0",
+    "httpx>=0.28.1",
+    "pydantic-settings>=2.14.2",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.32",
+    "uvicorn[standard]>=0.51.0",
+    "watchfiles>=1.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+    "ruff>=0.15.21",
+    "ty>=0.0.58",
+    "typer>=0.26.8",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
