@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { NInput, NButton, NCard, useMessage } from 'naive-ui'
 import LogoIcon from '../components/LogoIcon.vue'
+import { checkHealth } from '../api'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -11,6 +12,29 @@ const message = useMessage()
 
 const password = ref('')
 const error = ref('')
+
+// 后端服务状态
+type BackendStatus = 'checking' | 'online' | 'offline'
+const backendStatus = ref<BackendStatus>('checking')
+let healthTimer: ReturnType<typeof setInterval> | null = null
+
+async function probeHealth() {
+  try {
+    await checkHealth()
+    backendStatus.value = 'online'
+  } catch {
+    backendStatus.value = 'offline'
+  }
+}
+
+onMounted(() => {
+  probeHealth()
+  healthTimer = setInterval(probeHealth, 10_000)
+})
+
+onUnmounted(() => {
+  if (healthTimer) clearInterval(healthTimer)
+})
 
 const inputTheme = {
   color: 'transparent',
@@ -96,6 +120,23 @@ async function handleLogin() {
           {{ auth.loading ? '验证中...' : '进入轻语' }}
         </n-button>
       </n-card>
+
+      <!-- 后端状态 -->
+      <div class="backend-status">
+        <span
+          class="status-dot"
+          :class="{
+            online: backendStatus === 'online',
+            offline: backendStatus === 'offline',
+            checking: backendStatus === 'checking',
+          }"
+        />
+        <Transition name="status-fade" mode="out-in">
+          <span v-if="backendStatus === 'checking'" key="checking" class="status-text">检测服务状态…</span>
+          <span v-else-if="backendStatus === 'online'" key="online" class="status-text online-text">后端服务在线</span>
+          <span v-else key="offline" class="status-text offline-text">后端服务离线</span>
+        </Transition>
+      </div>
 
       <div class="footer-note">
         <span>本网站为私人使用，本项目已开源，可自行部署</span>
@@ -303,6 +344,71 @@ async function handleLogin() {
 
 .login-btn:active {
   transform: translateY(0);
+}
+
+/* 后端服务状态 */
+.backend-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.status-dot.checking {
+  background: #f59e0b;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.status-dot.online {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-dot.offline {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+/* 状态文字淡入淡出 */
+.status-fade-enter-active,
+.status-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.status-fade-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.status-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+.status-text {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #64748b;
+}
+
+.status-text.online-text {
+  color: #86efac;
+}
+
+.status-text.offline-text {
+  color: #fca5a5;
 }
 
 .footer-note {

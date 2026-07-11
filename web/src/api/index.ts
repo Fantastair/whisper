@@ -4,6 +4,12 @@ const api = axios.create({
   baseURL: '/api',
 })
 
+// 健康检查（独立实例，不触发 401 拦截）
+const healthApi = axios.create({ baseURL: '/api' })
+export function checkHealth() {
+  return healthApi.get<{ status: string }>('/health', { timeout: 5000 })
+}
+
 // 请求拦截器：自动附加 token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')

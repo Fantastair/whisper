@@ -14,6 +14,7 @@ venv/
 # ===== Node / 前端 =====
 node_modules/
 web/dist/
+*.tsbuildinfo
 
 # ===== Windows 端上传和归档目录（含真实音频） =====
 windows/uploads/*
