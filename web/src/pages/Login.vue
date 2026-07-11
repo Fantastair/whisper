@@ -2,9 +2,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { NInput, NButton, NCard, useMessage } from 'naive-ui'
+import { NInput, NButton, NCard, NIcon, useMessage } from 'naive-ui'
 import LogoIcon from '../components/LogoIcon.vue'
 import { checkHealth } from '../api'
+import { WarningOutline, KeyOutline } from '@vicons/ionicons5'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -98,12 +99,12 @@ async function handleLogin() {
           @keyup.enter="handleLogin"
         >
           <template #prefix>
-            <img src="/key.svg" alt="" class="key-svg" />
+            <n-icon size="20" :component="KeyOutline" class="key-svg" />
           </template>
         </n-input>
 
         <div v-if="error" class="error-msg" @click="error = ''">
-          <span class="error-icon">⚠</span>
+          <n-icon size="16" :component="WarningOutline" class="error-icon" />
           {{ error }}
           <span class="error-close">×</span>
         </div>
@@ -285,8 +286,6 @@ async function handleLogin() {
 }
 
 .key-svg {
-  width: 18px;
-  height: 18px;
   opacity: 0.55;
 }
 
@@ -311,7 +310,6 @@ async function handleLogin() {
 }
 
 .error-icon {
-  font-size: 14px;
   flex-shrink: 0;
 }
 

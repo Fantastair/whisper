@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, h, type Component } from 'vue'
 import { useTaskStore } from '../stores/tasks'
-import { NTag, NSpin, NButton, useMessage } from 'naive-ui'
-import { ChevronDown, ChevronUp, RefreshOutline } from '@vicons/ionicons5'
+import { NTag, NSpin, NButton, NIcon, useMessage } from 'naive-ui'
+import {
+  ChevronDown, ChevronUp, RefreshOutline,
+  CloudUploadOutline, VideocamOutline, DocumentTextOutline,
+  SparklesOutline, ClipboardOutline, CheckmarkCircleOutline,
+  MicOutline, MusicalNotesOutline,
+} from '@vicons/ionicons5'
 
 const taskStore = useTaskStore()
 const message = useMessage()
@@ -11,17 +16,23 @@ const message = useMessage()
 interface PipelineStage {
   key: string
   label: string
-  icon: string
+  icon: Component
 }
 
 const PIPELINE: PipelineStage[] = [
-  { key: 'upload',    label: '上传',     icon: '📤' },
-  { key: 'extract',   label: '提取音频', icon: '🎬' },
-  { key: 'transcribe', label: '转写文本', icon: '📝' },
-  { key: 'correct',   label: 'AI 修正',  icon: '✨' },
-  { key: 'summarize', label: 'AI 总结',  icon: '📋' },
-  { key: 'done',      label: '完成',     icon: '✅' },
+  { key: 'upload',     label: '上传',      icon: CloudUploadOutline },
+  { key: 'extract',    label: '提取音频',  icon: VideocamOutline },
+  { key: 'transcribe', label: '转写文本',  icon: DocumentTextOutline },
+  { key: 'correct',    label: 'AI 修正',   icon: SparklesOutline },
+  { key: 'summarize',  label: 'AI 总结',   icon: ClipboardOutline },
+  { key: 'done',       label: '完成',      icon: CheckmarkCircleOutline },
 ]
+
+// 文件类型图标
+const fileTypeIcon = {
+  audio: MusicalNotesOutline,
+  video: VideocamOutline,
+}
 
 // 状态 → 管线阶段映射
 const STATUS_STAGE: Record<string, number> = {
@@ -106,7 +117,9 @@ function handleRefresh() {
     <n-spin :show="taskStore.loading && taskStore.tasks.length === 0">
       <!-- 空状态 -->
       <div v-if="!taskStore.loading && taskStore.tasks.length === 0" class="empty-state">
-        <div class="empty-icon">🎤</div>
+        <div class="empty-icon">
+          <n-icon size="56" :component="MicOutline" />
+        </div>
         <p class="empty-text">还没有任务</p>
         <p class="empty-sub">拖拽音频/视频文件到下方 Dock 栏开始使用</p>
       </div>
@@ -123,7 +136,9 @@ function handleRefresh() {
           <!-- 卡片头部 -->
           <div class="card-header">
             <div class="card-info">
-              <span class="file-icon">{{ task.file_type === 'video' ? '🎬' : '🎵' }}</span>
+              <span class="file-icon">
+                <n-icon size="22" :component="fileTypeIcon[task.file_type]" />
+              </span>
               <div class="card-meta">
                 <span class="filename">{{ task.original_name || task.filename }}</span>
                 <span class="file-meta">
@@ -160,7 +175,7 @@ function handleRefresh() {
               ]"
             >
               <div class="step-dot">
-                <span class="step-icon">{{ stage.icon }}</span>
+                <n-icon size="14" :component="stage.icon" />
               </div>
               <span class="step-label">{{ stage.label }}</span>
               <!-- 连接线 -->
@@ -379,10 +394,10 @@ function handleRefresh() {
   z-index: 1;
 }
 
-.step-icon {
-  font-size: 13px;
+.step-dot :deep(.n-icon) {
   opacity: 0.3;
   transition: opacity 0.4s;
+  color: inherit;
 }
 
 .step-label {
@@ -415,7 +430,7 @@ function handleRefresh() {
   background: rgba(34, 197, 94, 0.15);
   border-color: rgba(34, 197, 94, 0.4);
 }
-.pipeline-step.done .step-icon {
+.pipeline-step.done .step-dot :deep(.n-icon) {
   opacity: 0.8;
 }
 .pipeline-step.done .step-label {
@@ -432,7 +447,7 @@ function handleRefresh() {
   box-shadow: 0 0 12px rgba(129, 140, 248, 0.2);
   animation: pulse-dot 1.8s ease-in-out infinite;
 }
-.pipeline-step.active .step-icon {
+.pipeline-step.active .step-dot :deep(.n-icon) {
   opacity: 1;
 }
 .pipeline-step.active .step-label {
@@ -450,7 +465,7 @@ function handleRefresh() {
   background: rgba(239, 68, 68, 0.15);
   border-color: rgba(239, 68, 68, 0.4);
 }
-.pipeline-step.failed .step-icon {
+.pipeline-step.failed .step-dot :deep(.n-icon) {
   opacity: 0.8;
 }
 .pipeline-step.failed .step-label {

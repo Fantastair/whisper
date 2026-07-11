@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTaskStore } from '../stores/tasks'
 import { NButton, useMessage } from 'naive-ui'
-import { CloudUploadOutline } from '@vicons/ionicons5'
 
 const emit = defineEmits<{
   uploaded: [taskId: string]
