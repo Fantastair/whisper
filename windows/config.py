@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     smtp_pass: str = ""
     mail_to: str = ""
 
+    # frp 内网穿透
+    frpc_enabled: bool = False
+    frpc_bin: str = ""
+    frpc_config: str = ""
+
     # 路径
     upload_dir: str = str(BASE_DIR / "uploads")
     archive_dir: str = "D:\\whisper-archive"

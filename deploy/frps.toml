@@ -1,3 +1,0 @@
-# 服务器 frp 服务端配置
-bindPort = 7000
-vhostHTTPPort = 7443

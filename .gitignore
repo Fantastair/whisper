@@ -23,6 +23,9 @@ windows/archive/
 # ===== 数据库（含任务记录） =====
 windows/*.db
 
+# ===== frp 内网穿透（本地配置和二进制文件） =====
+windows/frpc/
+
 # ===== IDE / 系统 =====
 .DS_Store
 thumbs.db
