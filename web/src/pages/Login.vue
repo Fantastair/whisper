@@ -59,7 +59,7 @@ async function handleLogin() {
   try {
     await auth.login(password.value)
     message.success('登录成功')
-    router.push('/upload')
+    router.push('/tasks')
   } catch {
     error.value = '密码错误，请重试'
   }

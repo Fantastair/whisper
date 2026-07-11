@@ -50,8 +50,7 @@ async def retry_task(
         raise HTTPException(status_code=400, detail="只有失败的任务可以重试")
 
     await db.execute(
-        "UPDATE tasks SET status = ?, error_message = NULL,"
-        " updated_at = datetime('now', 'localtime') WHERE id = ?",
+        "UPDATE tasks SET status = ?, error_message = NULL WHERE id = ?",
         ("pending", task_id),
     )
     await db.commit()
@@ -73,8 +72,7 @@ async def resend_email(
         raise HTTPException(status_code=400, detail="只有已发送邮件的任务可以重新发送")
 
     await db.execute(
-        "UPDATE tasks SET status = ?, email_sent = 0,"
-        " updated_at = datetime('now', 'localtime') WHERE id = ?",
+        "UPDATE tasks SET status = ?, email_sent = 0 WHERE id = ?",
         ("completed", task_id),
     )
     await db.commit()
